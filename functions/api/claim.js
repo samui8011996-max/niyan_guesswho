@@ -55,5 +55,5 @@ export async function onRequestPost({ request, env }) {
     console.error('game_plays failed', e);
   }
 
-  return json({ ok: true, code: env.COUPON_CODE || '2026Niyan95', isNew });
+  return json({ ok: true, code: env.COUPON_CODE || 'NIYAN95', isNew });
 }

@@ -334,7 +334,7 @@
 
   /* ===== 領券：email 存到 D1（/api/claim），回傳優惠碼 ===== */
   var SRC=(new URLSearchParams(location.search).get('src')||'').slice(0,60);
-  var claimed=store.get('niyan_guess_claim');
+  var claimed=store.get('niyan_guess_claim2');
   var form=$('.nyq-form'), got=$('.nyq-got'), err=$('.nyq-err'), submit=$('.nyq-submit');
   $('.nyq-shop').href=SHOP;
   $('.nyq-join').href=JOIN;
@@ -358,7 +358,7 @@
     }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
       .then(function(res){
         if(!res.ok||!res.d.ok) throw new Error(res.d.error||'');
-        claimed={code:res.d.code}; store.set('niyan_guess_claim',claimed);
+        claimed={code:res.d.code}; store.set('niyan_guess_claim2',claimed);
         renderClaim(!res.d.isNew);
       })
       .catch(function(x){ err.textContent=x.message||'網路好像不太穩，請再試一次'; })
