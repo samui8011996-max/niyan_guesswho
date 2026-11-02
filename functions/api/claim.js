@@ -3,7 +3,7 @@
 // 名單表 game_leads 和其他小遊戲共用：同一個 email 只存一筆，一人只領一次。
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const PASS = 4; // 答對幾題以上才能領（和網頁上的 PASS 一致）
+const PASS = 6; // 答對幾題以上才能領（和網頁上的 PASS 一致；6 = 全部答對）
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -27,7 +27,7 @@ export async function onRequestPost({ request, env }) {
   if (body.consent !== true) return json({ ok: false, error: '請勾選同意，才能寄送優惠給你' }, 400);
 
   const score = Math.max(0, Math.min(6, Math.floor(Number(body.score) || 0)));
-  if (score < PASS) return json({ ok: false, error: `答對 ${PASS} 題以上才能領取喔` }, 400);
+  if (score < PASS) return json({ ok: false, error: `全部答對才能領取喔` }, 400);
   const src = String(body.src || '').slice(0, 60);
   const now = Date.now();
 

@@ -201,7 +201,7 @@
 <script>
 (function(){
   /* ===== 可調整的設定 ===== */
-  var PASS=4;                                   /* 答對幾題以上才能領優惠碼 */
+  var PASS=6;                                   /* 答對幾題以上才能領優惠碼（6 = 全部答對，錯一題就沒有） */
   var SHOP='https://www.niyan-cement.com/';
   var JOIN=SHOP+'users/sign_up';                /* 加入會員頁 */
 
@@ -264,7 +264,7 @@
     if(img.complete) img.style.visibility='';
     no.textContent='第 '+(idx+1)+' / '+order.length+' 題';
     [].forEach.call(dots.children,function(d,i){ d.classList.toggle('on',i===idx); });
-    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？<br>答對 '+PASS+' 題以上，有小禮物送你喔！<br>':'')+'<b>提示：</b>'+m.h[0]);
+    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？<br>全部答對有小禮物送你，答錯一題就沒有囉！<br>':'')+'<b>提示：</b>'+m.h[0]);
     var pick=shuffle(M.filter(function(x){return x!==m;})).slice(0,3).concat([m]);
     opts.innerHTML='';
     shuffle(pick).forEach(function(x){
@@ -286,7 +286,9 @@
     dots.children[idx].classList.add(right?'ok':'ng');
     nm.textContent=m.n;
     card.classList.add('show');
-    say(bub,(right?'<b>答對了！</b>':'<b>差一點點！</b>')+'我是<b>'+m.n+'</b>。<br>'+m.d);
+    /* 錯到過不了關的那一題，告訴玩家這次的小禮物沒了 */
+    var lost=!right&&(idx+1-score)===(order.length-PASS+1);
+    say(bub,(right?'<b>答對了！</b>':'<b>差一點點！</b>')+'我是<b>'+m.n+'</b>。<br>'+m.d+(lost?'<br>這次的小禮物飛走了，玩完再挑戰一次吧！':''));
     hintBtn.hidden=true; nextBtn.hidden=false;
     nextBtn.textContent=idx===order.length-1?'看結果':'下一題';
   }
@@ -311,7 +313,10 @@
     $('.nyq-prize').hidden=!pass;
     var tip=$('.nyq-tryagain');
     tip.hidden=pass;
-    tip.innerHTML='再差 <b>'+(PASS-score)+' 題</b>就能拿到小禮物，看完下面的介紹再挑戰一次吧！';
+    tip.innerHTML=PASS===t?'要<b>全部答對</b>才有小禮物喔，再挑戰一次吧！'
+                          :'再差 <b>'+(PASS-score)+' 題</b>就能拿到小禮物，再挑戰一次吧！';
+    /* 沒過關不給看全部答案 */
+    $('.nyq-end-r').hidden=!pass;
     if(pass) renderClaim();
 
     $('.nyq-grid').innerHTML=M.map(function(m){
