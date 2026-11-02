@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>猜猜我是誰｜泥研製所</title>
-<meta name="description" content="讓被遺忘的材料重生，認識六位材料夥伴。答對送官網 95 折優惠碼。">
+<meta name="description" content="讓被遺忘的材料重生，認識六位材料夥伴。答對有小禮物。">
 <link rel="icon" href="favicon.png">
 <style>
   :root{
@@ -267,7 +267,7 @@
     if(img.complete) img.style.visibility='';
     no.textContent='第 '+(idx+1)+' / '+order.length+' 題';
     [].forEach.call(dots.children,function(d,i){ d.classList.toggle('on',i===idx); });
-    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？<br>答對 '+PASS+' 題以上，送你官網 95 折優惠碼。<br>':'')+'<b>提示：</b>'+m.h[0]);
+    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？<br>答對 '+PASS+' 題以上，有小禮物送你喔！<br>':'')+'<b>提示：</b>'+m.h[0]);
     var pick=shuffle(M.filter(function(x){return x!==m;})).slice(0,3).concat([m]);
     opts.innerHTML='';
     shuffle(pick).forEach(function(x){
@@ -317,8 +317,8 @@
     $('.nyq-prize').hidden=!pass;
     var tip=$('.nyq-tryagain');
     tip.hidden=pass;
-    tip.innerHTML=skip?'自己猜猜看，答對 <b>'+PASS+' 題以上</b>就送官網 95 折優惠碼。'
-                      :'再差 <b>'+(PASS-score)+' 題</b>就能領官網 95 折優惠碼，看完下面的介紹再挑戰一次吧！';
+    tip.innerHTML=skip?'自己猜猜看，答對 <b>'+PASS+' 題以上</b>有小禮物送你喔！'
+                      :'再差 <b>'+(PASS-score)+' 題</b>就能拿到小禮物，看完下面的介紹再挑戰一次吧！';
     if(pass) renderClaim();
 
     $('.nyq-grid').innerHTML=M.map(function(m){
