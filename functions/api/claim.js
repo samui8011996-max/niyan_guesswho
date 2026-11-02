@@ -1,6 +1,6 @@
 // POST /api/claim  { email, consent, game, score, src, website }
 // 存 email 到 D1，回傳優惠碼。優惠碼放在環境變數 COUPON_CODE，不寫在網頁原始碼裡。
-// 名單表 game_leads 和其他小遊戲共用：同一個 email 只存一筆，一人只領一次。
+// 名單表 game_leads 和其他小遊戲共用（同一個 email 一筆）；遊玩紀錄 game_plays 每款遊戲各一筆。
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PASS = 6; // 答對幾題以上才能領（和網頁上的 PASS 一致；6 = 全部答對）
@@ -40,5 +40,20 @@ export async function onRequestPost({ request, env }) {
     .bind(email, score, src, now)
     .first();
 
-  return json({ ok: true, code: env.COUPON_CODE || '2026Niyan95', isNew: row.created_at === now });
+  // 遊玩紀錄：每個 email 每款遊戲一筆，「已經領過」只看這款遊戲；表還沒建也不擋領券
+  let isNew = row.created_at === now;
+  try {
+    const play = await env.DB.prepare(
+      `INSERT INTO game_plays (email, game, score, created_at, updated_at) VALUES (?1, 'guess', ?2, ?3, ?3)
+       ON CONFLICT(email, game) DO UPDATE SET score = MAX(score, excluded.score), updated_at = excluded.updated_at
+       RETURNING created_at`
+    )
+      .bind(email, score, now)
+      .first();
+    isNew = play.created_at === now;
+  } catch (e) {
+    console.error('game_plays failed', e);
+  }
+
+  return json({ ok: true, code: env.COUPON_CODE || '2026Niyan95', isNew });
 }
