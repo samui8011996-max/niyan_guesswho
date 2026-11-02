@@ -78,8 +78,6 @@
   .nyq-btn:disabled{opacity:.6; cursor:default;}
   .nyq-btn.line{background:transparent; color:var(--nyq-brown); border:1.5px solid var(--nyq-brown);}
   .nyq-btn[hidden]{display:none;}
-  .nyq-skip{font-family:inherit; background:none; border:none; padding:8px 4px; font-size:13px; letter-spacing:1px; color:var(--nyq-grey); text-decoration:underline; text-underline-offset:4px; cursor:pointer;}
-  .nyq-skip:hover{color:var(--nyq-brown);}
 
   /* 結算畫面：左邊胖胖貓和領券，右邊材料介紹 */
   .nyq-end{display:none; animation:nyq-in .5s ease;}
@@ -159,7 +157,6 @@
         <div class="nyq-acts">
           <button type="button" class="nyq-btn line nyq-hint">再給一個提示</button>
           <button type="button" class="nyq-btn nyq-next" hidden>下一題</button>
-          <button type="button" class="nyq-skip">不猜了，直接看答案</button>
         </div>
       </div>
     </div>
@@ -301,24 +298,20 @@
     hintBtn.hidden=true;
   };
   nextBtn.onclick=function(){ idx++; if(idx<order.length) round(); else end(); };
-  $('.nyq-skip').onclick=function(){ end(true); toTop(); };
   $('.nyq-again').onclick=function(){ start(); toTop(); };
 
-  function end(skip){
-    var t=order.length, msg, pass=!skip&&score>=PASS;
-    $('.nyq-again').textContent=skip?'還是來猜猜看':'再玩一次';
+  function end(){
+    var t=order.length, msg, pass=score>=PASS;
     if(score===t) msg='全部答對！你就是材料重生達人。';
     else if(score>=t-2) msg='好厲害，差一點就全對了！';
     else msg='沒關係，現在你都認識它們了！';
-    if(skip) say($('.nyq-endmsg'),'答案揭曉！這六位就是泥研製所的材料夥伴。<br>這些被遺忘的材料，都在我們的作品裡重新出發。');
-    else say($('.nyq-endmsg'),'你答對了 <b>'+score+' / '+t+'</b> 題。'+msg+'<br>這些被遺忘的材料，都在泥研製所的作品裡重新出發。');
+    say($('.nyq-endmsg'),'你答對了 <b>'+score+' / '+t+'</b> 題。'+msg+'<br>這些被遺忘的材料，都在泥研製所的作品裡重新出發。');
 
     /* 過關才給領券；沒過關提示再玩一次 */
     $('.nyq-prize').hidden=!pass;
     var tip=$('.nyq-tryagain');
     tip.hidden=pass;
-    tip.innerHTML=skip?'自己猜猜看，答對 <b>'+PASS+' 題以上</b>有小禮物送你喔！'
-                      :'再差 <b>'+(PASS-score)+' 題</b>就能拿到小禮物，看完下面的介紹再挑戰一次吧！';
+    tip.innerHTML='再差 <b>'+(PASS-score)+' 題</b>就能拿到小禮物，看完下面的介紹再挑戰一次吧！';
     if(pass) renderClaim();
 
     $('.nyq-grid').innerHTML=M.map(function(m){
