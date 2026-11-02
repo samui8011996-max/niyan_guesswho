@@ -1,16 +1,18 @@
 <!-- 猜猜我是誰：貼到 SHOPLINE 的「自訂 HTML」區塊。網址換成你的 Pages 網址 -->
 <style>
-  /* 整條滿版米白底，和遊戲背景同色，看不出框；框框高度由遊戲自己回報（不出現捲軸） */
+  /* 整條滿版米白底，和遊戲背景同色，看不出框；框框高度由遊戲自己回報（高度對上就不會出現捲軸，萬一沒對上還能在框裡滑） */
   .nyq-wrap{width:100vw; position:relative; left:50%; margin-left:-50vw; padding-bottom:48px; background:#EFEDE9;}
   .nyq-box{position:relative; width:100%; max-width:1040px; margin:0 auto; aspect-ratio:16/9; min-height:520px; background:#EFEDE9;}
   @media (max-width:767px){
     .nyq-box{max-width:480px; aspect-ratio:auto; min-height:0; height:900px;}
   }
+  /* 手機：不要觸發雙擊放大 */
+  .nyq-wrap,.nyq-wrap *{touch-action:manipulation;}
   .nyq-box iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:block;}
 </style>
 <div class="nyq-wrap">
   <div class="nyq-box">
-    <iframe src="https://niyan-guesswho.pages.dev/?src=shopline" title="猜猜我是誰" scrolling="no"></iframe>
+    <iframe src="https://niyan-guesswho.pages.dev/?src=shopline" title="猜猜我是誰"></iframe>
   </div>
 </div>
 <script>

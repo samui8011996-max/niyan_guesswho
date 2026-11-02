@@ -2,7 +2,7 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>猜猜我是誰｜泥研製所</title>
 <meta name="description" content="讓被遺忘的材料重生，認識六位材料夥伴。答對有小禮物。">
 <link rel="icon" href="favicon.png">
@@ -16,8 +16,10 @@
     --nyq-red:#B3302E;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0; height:100%; overflow:hidden; background:var(--nyq-bg); color:var(--nyq-ink); font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%; overflow-x:hidden; overflow-y:auto; background:var(--nyq-bg); color:var(--nyq-ink); font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;}
   img{-webkit-user-drag:none;}
+  /* 手機：連點按鈕不要觸發雙擊放大 */
+  html,body,button,a,label,input{touch-action:manipulation;}
   /* 電腦答題時塞滿外嵌的橫式框框；結算畫面和手機版改成內容多高、框就多高（不出現捲軸） */
   .nyq{height:100%;}
   .nyq-inner{height:100%; overflow:hidden; display:flex; flex-direction:column; padding:3.2vh 4vw 3.6vh;}
