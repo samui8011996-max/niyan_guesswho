@@ -1,0 +1,16 @@
+<!-- 猜猜我是誰：貼到 SHOPLINE 的「自訂 HTML」區塊。網址換成你的 Pages 網址 -->
+<style>
+  /* 電腦（768px 以上）：橫式 16:9；手機：直式 */
+  .nyq-wrap{max-width:1040px; margin:0 auto; padding:0 16px;}
+  .nyq-box{position:relative; width:100%; aspect-ratio:16/9; min-height:520px; max-height:82vh; border-radius:24px; overflow:hidden; box-shadow:0 12px 30px rgba(139,96,58,.15); background:#EFEDE9;}
+  @media (max-width:767px){
+    .nyq-wrap{max-width:480px;}
+    .nyq-box{aspect-ratio:3/4; min-height:620px; max-height:88vh;}
+  }
+  .nyq-box iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:block;}
+</style>
+<div class="nyq-wrap">
+  <div class="nyq-box">
+    <iframe src="https://niyan-guesswho.pages.dev/?src=shopline" title="猜猜我是誰" loading="lazy"></iframe>
+  </div>
+</div>

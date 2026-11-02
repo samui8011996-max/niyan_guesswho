@@ -1,0 +1,12 @@
+name = "niyan-guesswho"
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "public"
+
+# 名單存在既有的 D1「game」的 game_leads 表，和其他小遊戲共用（一人只領一次）
+[[d1_databases]]
+binding = "DB"
+database_name = "game"
+database_id = "4c9adc73-97cf-4be0-bcde-089f678d6f65"
+
+[vars]
+COUPON_CODE = "NIYAN95"

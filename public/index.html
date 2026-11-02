@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>猜猜我是誰｜泥研製所</title>
+<meta name="description" content="讓被遺忘的材料重生，認識六位材料夥伴。答對送官網 95 折優惠碼。">
+<link rel="icon" href="favicon.png">
+<style>
+  :root{
+    --nyq-bg:#EFEDE9;     /* 米白底 */
+    --nyq-tea:#BCA17F;    /* 奶茶棕 */
+    --nyq-brown:#8B603A;  /* 深咖（胖胖貓線條色）*/
+    --nyq-grey:#757575;   /* 灰 */
+    --nyq-ink:#4A3F35;    /* 內文深色 */
+    --nyq-red:#B3302E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; height:100%; overflow:hidden; background:var(--nyq-bg); color:var(--nyq-ink); font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;}
+  img{-webkit-user-drag:none;}
+  /* 整個遊戲塞進外嵌的橫式框框；結算畫面太長時在框內捲動 */
+  .nyq{height:100%;}
+  .nyq-inner{height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; padding:3.2vh 4vw 3.6vh;}
+
+  /* 標題 */
+  .nyq-head{flex:none; text-align:center; margin-bottom:2vh;}
+  .nyq-kicker{display:inline-block; font-size:clamp(11px,2vh,13px); letter-spacing:3px; color:var(--nyq-brown); border-bottom:1px solid var(--nyq-tea); padding-bottom:4px; margin-bottom:1vh;}
+  .nyq-head h1{font-size:clamp(22px,5vh,32px); letter-spacing:4px; margin:0 0 .6vh; color:var(--nyq-ink);}
+  .nyq-head p{font-size:clamp(12px,2.3vh,15px); letter-spacing:2px; margin:0; color:var(--nyq-grey);}
+
+  /* 進度點 */
+  .nyq-dots{flex:none; display:flex; justify-content:center; gap:8px; margin-bottom:2.4vh;}
+  .nyq-dots i{width:10px; height:10px; border-radius:50%; background:#D9D3CA; transition:all .3s;}
+  .nyq-dots i.on{background:var(--nyq-brown); transform:scale(1.25);}
+  .nyq-dots i.ok{background:var(--nyq-tea);}
+  .nyq-dots i.ng{background:var(--nyq-grey);}
+
+  /* 遊戲區：左邊圖卡、右邊對話和選項 */
+  .nyq-game{flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; gap:4vw;}
+  .nyq-card{flex:none; position:relative; height:100%; max-height:42vw; aspect-ratio:1/1; background:#fff; border-radius:24px; box-shadow:0 10px 30px rgba(139,96,58,.12);}
+  .nyq-no{position:absolute; top:14px; left:18px; font-size:13px; letter-spacing:2px; color:var(--nyq-grey);}
+  .nyq-card img{position:absolute; top:12%; left:12%; width:76%; height:76%; object-fit:contain; filter:brightness(0) opacity(.82);}
+  .nyq-card.show img{filter:none; transform:scale(1.04); transition:filter .7s ease, transform .7s ease;}
+  .nyq-q{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:clamp(48px,11vh,84px); font-weight:700; color:#fff; pointer-events:none;}
+  .nyq-card.show .nyq-q{opacity:0; transition:opacity .4s;}
+  .nyq-name{position:absolute; bottom:14px; left:0; right:0; text-align:center; font-size:clamp(15px,3vh,20px); font-weight:700; letter-spacing:4px; color:var(--nyq-brown); opacity:0; transform:translateY(8px);}
+  .nyq-card.show .nyq-name{opacity:1; transform:none; transition:all .5s .3s;}
+
+  .nyq-side{flex:1 1 auto; min-width:0; max-width:520px;}
+
+  /* 胖胖貓 + 氣泡框 */
+  .nyq-talk{display:flex; align-items:flex-end; gap:12px; margin-bottom:2.4vh;}
+  .nyq-cat{flex:0 0 clamp(56px,13vh,90px); animation:nyq-bob 2.6s ease-in-out infinite;}
+  .nyq-cat img{width:100%; height:auto; display:block;}
+  @keyframes nyq-bob{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-4px) rotate(-2deg);}}
+  .nyq-bubble{position:relative; flex:1 1 auto; background:#fff; border:2px solid var(--nyq-tea); border-radius:18px; padding:1.8vh 18px; font-size:clamp(13px,2.5vh,16px); line-height:1.75; min-height:clamp(70px,15vh,104px); margin-bottom:2vh;}
+  .nyq-bubble::before,.nyq-bubble::after{content:""; position:absolute; bottom:18px; width:0; height:0; border-style:solid;}
+  .nyq-bubble::before{left:-14px; border-width:9px 14px 9px 0; border-color:transparent var(--nyq-tea) transparent transparent;}
+  .nyq-bubble::after{left:-10px; bottom:20px; border-width:7px 11px 7px 0; border-color:transparent #fff transparent transparent;}
+  .nyq-bubble b{color:var(--nyq-brown);}
+  .nyq-bubble .nyq-pop{display:block; animation:nyq-in .35s ease;}
+  @keyframes nyq-in{from{opacity:0; transform:translateY(6px);}to{opacity:1; transform:none;}}
+
+  /* 選項 */
+  .nyq-opts{display:grid; grid-template-columns:1fr 1fr; gap:1.6vh 12px; margin-bottom:2vh;}
+  .nyq-opts button{font-family:inherit; font-size:clamp(13px,2.5vh,16px); letter-spacing:2px; padding:clamp(8px,1.9vh,14px) 10px; border-radius:999px; border:1.5px solid var(--nyq-tea); background:#fff; color:var(--nyq-ink); cursor:pointer; transition:all .2s;}
+  .nyq-opts button:hover:not(:disabled){background:var(--nyq-tea); color:#fff;}
+  .nyq-opts button:disabled{cursor:default;}
+  .nyq-opts button.ok{background:var(--nyq-brown); border-color:var(--nyq-brown); color:#fff;}
+  .nyq-opts button.ng{background:#E4E1DC; border-color:#E4E1DC; color:var(--nyq-grey); animation:nyq-shake .4s;}
+  .nyq-opts button.dim{opacity:.45;}
+  @keyframes nyq-shake{0%,100%{transform:none;}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+  /* 下方按鈕 */
+  .nyq-acts{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .nyq-btn{font-family:inherit; display:inline-block; cursor:pointer; border:none; background:var(--nyq-brown); color:#fff; padding:clamp(8px,1.7vh,12px) 30px; border-radius:999px; font-size:clamp(13px,2.3vh,15px); letter-spacing:2px; text-decoration:none; text-align:center; transition:opacity .2s;}
+  .nyq-btn:hover{opacity:.85;}
+  .nyq-btn:disabled{opacity:.6; cursor:default;}
+  .nyq-btn.line{background:transparent; color:var(--nyq-brown); border:1.5px solid var(--nyq-brown);}
+  .nyq-btn[hidden]{display:none;}
+  .nyq-skip{font-family:inherit; background:none; border:none; padding:8px 4px; font-size:13px; letter-spacing:1px; color:var(--nyq-grey); text-decoration:underline; text-underline-offset:4px; cursor:pointer;}
+  .nyq-skip:hover{color:var(--nyq-brown);}
+
+  /* 結算畫面：左邊胖胖貓和領券，右邊材料介紹 */
+  .nyq-end{display:none; animation:nyq-in .5s ease;}
+  .nyq.done .nyq-game,.nyq.done .nyq-dots{display:none;}
+  .nyq.done .nyq-head{margin-bottom:2.4vh;}
+  .nyq.done .nyq-end{display:flex; gap:3vw; align-items:flex-start;}
+  .nyq-end-l{flex:0 0 42%; min-width:0; text-align:center;}
+  .nyq-end-l .nyq-talk{text-align:left; margin-bottom:1.6vh;}
+  .nyq-end-r{flex:1 1 auto; min-width:0;}
+  .nyq-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .nyq-grid div{background:#fff; border-radius:16px; padding:10px 10px 12px; text-align:center;}
+  .nyq-grid img{width:62%; margin:0 auto; height:auto; aspect-ratio:1/1; object-fit:contain; display:block;}
+  .nyq-grid span{display:block; font-size:15px; letter-spacing:2px; margin-top:4px; color:var(--nyq-brown); font-weight:700;}
+  .nyq-grid small{display:block; font-size:12px; line-height:1.6; color:var(--nyq-grey); margin-top:4px; text-align:left;}
+
+  /* 領券 */
+  .nyq-prize{margin:0 0 14px; padding:16px 18px; border:1.5px dashed var(--nyq-tea); border-radius:20px; background:#fff; letter-spacing:1px;}
+  .nyq-prize[hidden],.nyq-prize [hidden]{display:none;}
+  .nyq-prize-t{margin:0 0 10px; font-size:15px; line-height:1.6;}
+  .nyq-prize-t b{color:var(--nyq-red); font-size:18px;}
+  .nyq-note{display:block; margin:2px 0 0; font-size:12px; font-weight:700; color:var(--nyq-red);}
+  .nyq-prize input[type=email]{width:100%; padding:10px 14px; border-radius:12px; border:1.5px solid #E2DBCF; background:#fff; font:inherit; font-size:16px; color:var(--nyq-ink); outline:none; -webkit-user-select:text; user-select:text;}
+  .nyq-prize input[type=email]:focus{border-color:var(--nyq-tea);}
+  .nyq-agree{display:flex; gap:6px; align-items:flex-start; margin:8px 0 0; text-align:left; font-size:12px; line-height:1.6; color:var(--nyq-grey); cursor:pointer;}
+  .nyq-agree input{flex:none; width:15px; height:15px; margin:2px 0 0; accent-color:var(--nyq-brown);}
+  .nyq-err{min-height:18px; margin:4px 0; font-size:12px; color:var(--nyq-red);}
+  .nyq-prize .nyq-btn{width:100%;}
+  .nyq-hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  .nyq-code{display:flex; align-items:center; justify-content:center; gap:12px; margin:2px 0 6px;}
+  .nyq-code b{font-size:26px; letter-spacing:4px; color:var(--nyq-brown); font-family:ui-monospace,Consolas,monospace;}
+  .nyq-copy{font-family:inherit; border:0; background:var(--nyq-tea); color:#fff; border-radius:999px; padding:5px 14px; font-size:13px; letter-spacing:1px; cursor:pointer;}
+  .nyq-how{margin:0 0 12px; font-size:12px; line-height:1.7; color:var(--nyq-grey);}
+  .nyq-links{display:flex; gap:10px;}
+  .nyq-links .nyq-btn{flex:1 1 0; padding:10px 8px;}
+  .nyq-tryagain{margin:0 0 14px; font-size:14px; line-height:1.8; color:var(--nyq-grey);}
+  .nyq-tryagain b{color:var(--nyq-red);}
+
+  /* 手機直拿（框框變直式）：上下排、可捲動 */
+  @media (max-width:767px){
+    .nyq-inner{padding:24px 16px 28px;}
+    .nyq-head{margin-bottom:14px;}
+    .nyq-dots{margin-bottom:16px;}
+    .nyq-game{flex:none; flex-direction:column; gap:16px;}
+    .nyq-card{height:auto; width:62%; max-width:260px; max-height:none;}
+    .nyq-side{width:100%;}
+    .nyq-acts{justify-content:center;}
+    .nyq.done .nyq-end{flex-direction:column; gap:16px;}
+    .nyq-end-l{flex:none; width:100%;}
+    .nyq-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<section class="nyq">
+  <div class="nyq-inner">
+    <div class="nyq-head">
+      <div class="nyq-kicker">水の尼　泥研製所</div>
+      <h1>猜猜我是誰</h1>
+      <p>讓被遺忘的材料重生，認識六位材料夥伴</p>
+    </div>
+
+    <div class="nyq-dots"></div>
+
+    <div class="nyq-game">
+      <div class="nyq-card">
+        <span class="nyq-no"></span>
+        <img src="" alt="神秘材料">
+        <span class="nyq-q">?</span>
+        <span class="nyq-name"></span>
+      </div>
+      <div class="nyq-side">
+        <div class="nyq-talk">
+          <div class="nyq-cat"><img src="cat.svg" alt=""></div>
+          <div class="nyq-bubble"></div>
+        </div>
+        <div class="nyq-opts"></div>
+        <div class="nyq-acts">
+          <button type="button" class="nyq-btn line nyq-hint">再給一個提示</button>
+          <button type="button" class="nyq-btn nyq-next" hidden>下一題</button>
+          <button type="button" class="nyq-skip">不猜了，直接看答案</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nyq-end">
+     <div class="nyq-end-l">
+      <div class="nyq-talk">
+        <div class="nyq-cat"><img src="cat.svg" alt=""></div>
+        <div class="nyq-bubble nyq-endmsg"></div>
+      </div>
+
+      <!-- 答對門檻以上才出現 -->
+      <div class="nyq-prize" hidden>
+        <form class="nyq-form" novalidate>
+          <p class="nyq-prize-t">恭喜過關！留下 Email，領官網 <b>95 折</b>優惠碼<small class="nyq-note">優惠碼限官網會員使用</small></p>
+          <input type="email" name="email" placeholder="你的 Email" autocomplete="email" inputmode="email" required>
+          <div class="nyq-hp" aria-hidden="true"><label>網站 <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <label class="nyq-agree"><input type="checkbox" name="consent">我同意泥研製所寄送優惠與新品消息到這個 Email，可隨時取消訂閱。</label>
+          <p class="nyq-err" role="alert"></p>
+          <button type="submit" class="nyq-btn nyq-submit">領取優惠碼</button>
+        </form>
+        <div class="nyq-got" hidden>
+          <p class="nyq-prize-t nyq-got-t">你的 95 折優惠碼</p>
+          <div class="nyq-code"><b class="nyq-code-v"></b><button type="button" class="nyq-copy">複製</button></div>
+          <p class="nyq-how">請先加入官網會員並登入，結帳時在「優惠代碼」欄位輸入就能享 95 折。</p>
+          <div class="nyq-links">
+            <a class="nyq-btn nyq-join" target="_top">加入會員</a>
+            <a class="nyq-btn line nyq-shop" target="_top">去官網選購</a>
+          </div>
+        </div>
+      </div>
+      <p class="nyq-tryagain" hidden></p>
+      <button type="button" class="nyq-btn nyq-again">再玩一次</button>
+     </div>
+     <div class="nyq-end-r">
+      <div class="nyq-grid"></div>
+     </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  /* ===== 可調整的設定 ===== */
+  var PASS=4;                                   /* 答對幾題以上才能領優惠碼 */
+  var SHOP='https://www.niyan-cement.com/';
+  var JOIN=SHOP+'users/sign_up';                /* 加入會員頁 */
+
+  var box=document.querySelector('.nyq'); if(!box) return;
+  var IMG='https://img.shoplineapp.com/media/image_clips/';
+  /* 材料資料：新增材料就在這裡加一筆 */
+  var M=[
+    {n:'水庫淤泥', img:'6acde315adde8e40f4bf0e03',
+     h:['我住在水庫的最底層，一年一年慢慢堆積起來。','我頭上還冒出了一株小嫩芽喔。'],
+     d:'水庫清淤挖出的淤泥，重新調配成作品的原料，讓沉在水底的泥土重見天日。'},
+    {n:'生物炭', img:'6acde31579adbe0c77268e9c',
+     h:['我全身黑漆漆的，是植物經過高溫燒製變成的。','我身上有好多小孔洞，很會吸附東西。'],
+     d:'植物廢料經高溫炭化成生物炭，加進作品裡，讓材料多一份減碳的力量。'},
+    {n:'行道樹木', img:'6acde3151ef5d8d097858d83',
+     h:['我以前站在馬路旁邊，幫大家遮太陽。','被修剪下來之後，身上還看得到一圈一圈的年輪。'],
+     d:'回收台灣行道樹修剪下的小樹枝，落葉歸根，變成有故事的生活物件。'},
+    {n:'玻璃砂', img:'6acde31514552bef0e36b471',
+     h:['我以前可能是一個飲料瓶。','被磨碎之後，我變成亮晶晶的細砂。'],
+     d:'回收玻璃磨成細砂再利用，讓廢玻璃有了新的價值。'},
+    {n:'蚵殼', img:'6acde3158e0a351e85dc12c3',
+     h:['我來自海邊，以前裡面住著鮮美的小東西。','蚵仔煎吃完，常常只剩下我被留下來。'],
+     d:'回收蚵殼研磨成粉，加入混凝土裡，海廢也能變黃金。'},
+    {n:'塑膠微粒', img:'6acde315843f00b80ea8684b',
+     h:['我們是一群圓滾滾、五顏六色的小球。','我們的前身是保麗龍和塑膠。'],
+     d:'回收塑膠和保麗龍再製，讓日常廢棄物化身永續創作原料。'}
+  ];
+  M.forEach(function(m){ m.src=IMG+m.img+'/original.png'; });
+
+  var $=function(s){return box.querySelector(s);};
+  var card=$('.nyq-card'), img=$('.nyq-card img'), no=$('.nyq-no'), nm=$('.nyq-name'),
+      bub=$('.nyq-game .nyq-bubble'), opts=$('.nyq-opts'), dots=$('.nyq-dots'),
+      hintBtn=$('.nyq-hint'), nextBtn=$('.nyq-next');
+  var order, idx, score, hintN, locked;
+  var store={
+    get:function(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+    set:function(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  };
+
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function say(el,html){ el.innerHTML='<span class="nyq-pop">'+html+'</span>'; }
+  function toTop(){ $('.nyq-inner').scrollTo({top:0, behavior:'smooth'}); }
+
+  /* 預先載入圖片，避免揭曉時閃一下 */
+  M.forEach(function(m){ var i=new Image(); i.src=m.src; });
+
+  function start(){
+    order=shuffle(M); idx=0; score=0;
+    dots.innerHTML=order.map(function(){return '<i></i>';}).join('');
+    box.classList.remove('done');
+    round();
+  }
+
+  function round(){
+    var m=order[idx]; hintN=1; locked=false;
+    card.classList.remove('show');
+    nm.textContent='';
+    img.style.visibility='hidden';
+    img.onload=function(){ img.style.visibility=''; };
+    img.src=m.src;
+    if(img.complete) img.style.visibility='';
+    no.textContent='第 '+(idx+1)+' / '+order.length+' 題';
+    [].forEach.call(dots.children,function(d,i){ d.classList.toggle('on',i===idx); });
+    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？<br>答對 '+PASS+' 題以上，送你官網 95 折優惠碼。<br>':'')+'<b>提示：</b>'+m.h[0]);
+    var pick=shuffle(M.filter(function(x){return x!==m;})).slice(0,3).concat([m]);
+    opts.innerHTML='';
+    shuffle(pick).forEach(function(x){
+      var b=document.createElement('button'); b.type='button'; b.textContent=x.n;
+      b.onclick=function(){ answer(b,x===m); };
+      opts.appendChild(b);
+    });
+    hintBtn.hidden=false; nextBtn.hidden=true;
+  }
+
+  function answer(btn,right){
+    if(locked) return; locked=true;
+    var m=order[idx];
+    [].forEach.call(opts.children,function(b){
+      b.disabled=true;
+      if(b.textContent===m.n) b.classList.add('ok'); else if(b!==btn) b.classList.add('dim');
+    });
+    if(!right) btn.classList.add('ng'); else score++;
+    dots.children[idx].classList.add(right?'ok':'ng');
+    nm.textContent=m.n;
+    card.classList.add('show');
+    say(bub,(right?'<b>答對了！</b>':'<b>差一點點！</b>')+'我是<b>'+m.n+'</b>。<br>'+m.d);
+    hintBtn.hidden=true; nextBtn.hidden=false;
+    nextBtn.textContent=idx===order.length-1?'看結果':'下一題';
+  }
+
+  hintBtn.onclick=function(){
+    if(locked||hintN>=2) return; hintN=2;
+    var m=order[idx];
+    say(bub,'<b>提示：</b>'+m.h[0]+'<br><b>再一個：</b>'+m.h[1]);
+    hintBtn.hidden=true;
+  };
+  nextBtn.onclick=function(){ idx++; if(idx<order.length) round(); else end(); };
+  $('.nyq-skip').onclick=function(){ end(true); toTop(); };
+  $('.nyq-again').onclick=function(){ start(); toTop(); };
+
+  function end(skip){
+    var t=order.length, msg, pass=!skip&&score>=PASS;
+    $('.nyq-again').textContent=skip?'還是來猜猜看':'再玩一次';
+    if(score===t) msg='全部答對！你就是材料重生達人。';
+    else if(score>=t-2) msg='好厲害，差一點就全對了！';
+    else msg='沒關係，現在你都認識它們了！';
+    if(skip) say($('.nyq-endmsg'),'答案揭曉！這六位就是泥研製所的材料夥伴。<br>這些被遺忘的材料，都在我們的作品裡重新出發。');
+    else say($('.nyq-endmsg'),'你答對了 <b>'+score+' / '+t+'</b> 題。'+msg+'<br>這些被遺忘的材料，都在泥研製所的作品裡重新出發。');
+
+    /* 過關才給領券；沒過關提示再玩一次 */
+    $('.nyq-prize').hidden=!pass;
+    var tip=$('.nyq-tryagain');
+    tip.hidden=pass;
+    tip.innerHTML=skip?'自己猜猜看，答對 <b>'+PASS+' 題以上</b>就送官網 95 折優惠碼。'
+                      :'再差 <b>'+(PASS-score)+' 題</b>就能領官網 95 折優惠碼，看完下面的介紹再挑戰一次吧！';
+    if(pass) renderClaim();
+
+    $('.nyq-grid').innerHTML=M.map(function(m){
+      return '<div><img src="'+m.src+'" alt="'+m.n+'" loading="lazy"><span>'+m.n+'</span><small>'+m.d+'</small></div>';
+    }).join('');
+    box.classList.add('done');
+  }
+
+  /* 整頁鎖右鍵、長按選單、拖曳圖片；只有 email 欄位保留，方便貼上 */
+  document.addEventListener('contextmenu',function(e){ if(e.target.tagName!=='INPUT') e.preventDefault(); });
+  document.addEventListener('dragstart',function(e){ e.preventDefault(); });
+  document.addEventListener('selectstart',function(e){ if(e.target.tagName!=='INPUT') e.preventDefault(); });
+
+  /* ===== 領券：email 存到 D1（/api/claim），回傳優惠碼 ===== */
+  var SRC=(new URLSearchParams(location.search).get('src')||'').slice(0,60);
+  var claimed=store.get('niyan_claim');
+  var form=$('.nyq-form'), got=$('.nyq-got'), err=$('.nyq-err'), submit=$('.nyq-submit');
+  $('.nyq-shop').href=SHOP;
+  $('.nyq-join').href=JOIN;
+  function renderClaim(again){
+    form.hidden=!!claimed; got.hidden=!claimed;
+    if(!claimed) return;
+    $('.nyq-got-t').textContent=again?'這個 Email 已經領過囉，優惠碼在這裡':'你的 95 折優惠碼';
+    $('.nyq-code-v').textContent=claimed.code;
+    $('.nyq-copy').textContent='複製';
+  }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var email=form.email.value.trim();
+    err.textContent='';
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ err.textContent='請輸入正確的 Email'; form.email.focus(); return; }
+    if(!form.consent.checked){ err.textContent='請勾選同意，才能寄送優惠給你'; return; }
+    submit.disabled=true; submit.textContent='處理中…';
+    fetch('/api/claim',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email, consent:true, game:'guess', score:score, src:SRC, website:form.website.value})
+    }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+      .then(function(res){
+        if(!res.ok||!res.d.ok) throw new Error(res.d.error||'');
+        claimed={code:res.d.code}; store.set('niyan_claim',claimed);
+        renderClaim(!res.d.isNew);
+      })
+      .catch(function(x){ err.textContent=x.message||'網路好像不太穩，請再試一次'; })
+      .then(function(){ submit.disabled=false; submit.textContent='領取優惠碼'; });
+  });
+  $('.nyq-copy').onclick=function(){
+    var b=this, code=$('.nyq-code-v').textContent;
+    function done(){ b.textContent='已複製'; }
+    function fallback(){
+      var t=document.createElement('textarea'); t.value=code; document.body.appendChild(t); t.select();
+      try{ document.execCommand('copy'); done(); }catch(e){}
+      document.body.removeChild(t);
+    }
+    if(navigator.clipboard) navigator.clipboard.writeText(code).then(done,fallback); else fallback();
+  };
+
+  start();
+})();
+</script>
+</body>
+</html>
