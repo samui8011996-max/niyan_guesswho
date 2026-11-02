@@ -106,7 +106,7 @@
   .nyq-err{min-height:18px; margin:4px 0; font-size:12px; color:var(--nyq-red);}
   .nyq-prize .nyq-btn{width:100%;}
   .nyq-hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
-  .nyq-code{display:flex; align-items:center; justify-content:center; gap:12px; margin:2px 0 6px;}
+  .nyq-code{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; margin:2px 0 6px;}
   .nyq-code b{font-size:26px; letter-spacing:4px; color:var(--nyq-brown); font-family:ui-monospace,Consolas,monospace;}
   .nyq-copy{font-family:inherit; border:0; background:var(--nyq-tea); color:#fff; border-radius:999px; padding:5px 14px; font-size:13px; letter-spacing:1px; cursor:pointer;}
   .nyq-how{margin:0 0 12px; font-size:12px; line-height:1.7; color:var(--nyq-grey);}
@@ -332,7 +332,7 @@
 
   /* ===== 領券：email 存到 D1（/api/claim），回傳優惠碼 ===== */
   var SRC=(new URLSearchParams(location.search).get('src')||'').slice(0,60);
-  var claimed=store.get('niyan_claim');
+  var claimed=store.get('niyan_guess_claim');
   var form=$('.nyq-form'), got=$('.nyq-got'), err=$('.nyq-err'), submit=$('.nyq-submit');
   $('.nyq-shop').href=SHOP;
   $('.nyq-join').href=JOIN;
@@ -356,7 +356,7 @@
     }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
       .then(function(res){
         if(!res.ok||!res.d.ok) throw new Error(res.d.error||'');
-        claimed={code:res.d.code}; store.set('niyan_claim',claimed);
+        claimed={code:res.d.code}; store.set('niyan_guess_claim',claimed);
         renderClaim(!res.d.isNew);
       })
       .catch(function(x){ err.textContent=x.message||'網路好像不太穩，請再試一次'; })

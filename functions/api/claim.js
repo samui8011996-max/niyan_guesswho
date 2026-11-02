@@ -40,5 +40,5 @@ export async function onRequestPost({ request, env }) {
     .bind(email, score, src, now)
     .first();
 
-  return json({ ok: true, code: env.COUPON_CODE || 'NIYAN95', isNew: row.created_at === now });
+  return json({ ok: true, code: env.COUPON_CODE || '2026Niyan95', isNew: row.created_at === now });
 }
