@@ -18,9 +18,10 @@
   *{box-sizing:border-box;}
   html,body{margin:0; height:100%; overflow:hidden; background:var(--nyq-bg); color:var(--nyq-ink); font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;}
   img{-webkit-user-drag:none;}
-  /* 整個遊戲塞進外嵌的橫式框框；結算畫面太長時在框內捲動 */
+  /* 電腦答題時塞滿外嵌的橫式框框；結算畫面和手機版改成內容多高、框就多高（不出現捲軸） */
   .nyq{height:100%;}
-  .nyq-inner{height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; padding:3.2vh 4vw 3.6vh;}
+  .nyq-inner{height:100%; overflow:hidden; display:flex; flex-direction:column; padding:3.2vh 4vw 3.6vh;}
+  .nyq.done .nyq-inner{height:auto; padding-top:24px; padding-bottom:28px;}
 
   /* 標題 */
   .nyq-head{flex:none; text-align:center; margin-bottom:2vh;}
@@ -115,9 +116,9 @@
   .nyq-tryagain{margin:0 0 14px; font-size:14px; line-height:1.8; color:var(--nyq-grey);}
   .nyq-tryagain b{color:var(--nyq-red);}
 
-  /* 手機直拿（框框變直式）：上下排、可捲動 */
+  /* 手機直拿：上下排，框框跟著內容長高 */
   @media (max-width:767px){
-    .nyq-inner{padding:24px 16px 28px;}
+    .nyq-inner,.nyq.done .nyq-inner{height:auto; padding:24px 16px 28px;}
     .nyq-head{margin-bottom:14px;}
     .nyq-dots{margin-bottom:16px;}
     .nyq-game{flex:none; flex-direction:column; gap:16px;}
@@ -242,7 +243,8 @@
 
   function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;} return a; }
   function say(el,html){ el.innerHTML='<span class="nyq-pop">'+html+'</span>'; }
-  function toTop(){ $('.nyq-inner').scrollTo({top:0, behavior:'smooth'}); }
+  /* 框框會跟著長高，換畫面時請外層官網把頁面捲回遊戲頂端 */
+  function toTop(){ if(window.parent!==window) window.parent.postMessage({type:'niyan-guesswho-top'},'*'); }
 
   /* 預先載入圖片，避免揭曉時閃一下 */
   M.forEach(function(m){ var i=new Image(); i.src=m.src; });
@@ -299,7 +301,7 @@
     say(bub,'<b>提示：</b>'+m.h[0]+'<br><b>再一個：</b>'+m.h[1]);
     hintBtn.hidden=true;
   };
-  nextBtn.onclick=function(){ idx++; if(idx<order.length) round(); else end(); };
+  nextBtn.onclick=function(){ idx++; if(idx<order.length) round(); else { end(); toTop(); } };
   $('.nyq-again').onclick=function(){ start(); toTop(); };
 
   function end(){
@@ -372,6 +374,21 @@
     }
     if(navigator.clipboard) navigator.clipboard.writeText(code).then(done,fallback); else fallback();
   };
+
+  /* 告訴外層官網框框要多高：電腦答題時固定 16:9，結算畫面和手機版照內容高度 */
+  if(window.parent!==window){
+    var inner=$('.nyq-inner'), lastH=0;
+    var post=function(){
+      var w=window.innerWidth, h;
+      if(w>=768&&!box.classList.contains('done')) h=Math.max(520,Math.round(w*9/16));
+      else h=Math.ceil(inner.offsetHeight);
+      if(Math.abs(h-lastH)>2){ lastH=h; window.parent.postMessage({type:'niyan-guesswho-height', h:h},'*'); }
+    };
+    if(window.ResizeObserver) new ResizeObserver(post).observe(inner);
+    window.addEventListener('resize',post);
+    window.addEventListener('load',post);
+    setInterval(post,800);
+  }
 
   start();
 })();

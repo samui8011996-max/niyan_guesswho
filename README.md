@@ -10,7 +10,7 @@
 | `public/cat.svg` | 胖胖貓 |
 | `functions/api/claim.js` | 收 Email、存進 D1、回傳優惠碼 |
 | `wrangler.toml` | Pages 設定：D1 綁定（DB → game）、優惠碼 `COUPON_CODE` |
-| `官網嵌入碼.html` | 貼到 SHOPLINE「自訂 HTML」（電腦橫式 16:9、手機直式） |
+| `官網嵌入碼.html` | 貼到 SHOPLINE「自訂 HTML」（框框高度跟著遊戲內容變，不出現捲軸；需要搭配新版外嵌碼） |
 
 ## 部署
 
