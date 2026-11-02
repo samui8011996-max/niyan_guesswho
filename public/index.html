@@ -264,7 +264,7 @@
     if(img.complete) img.style.visibility='';
     no.textContent='第 '+(idx+1)+' / '+order.length+' 題';
     [].forEach.call(dots.children,function(d,i){ d.classList.toggle('on',i===idx); });
-    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？<br>全部答對有小禮物送你，答錯一題就沒有囉！<br>':'')+'<b>提示：</b>'+m.h[0]);
+    say(bub,(idx===0?'嗨，我是胖胖貓！這些材料夥伴都躲起來了，你猜得出來嗎？全部答對有小禮物送你喔！<br>':'')+'<b>提示：</b>'+m.h[0]);
     var pick=shuffle(M.filter(function(x){return x!==m;})).slice(0,3).concat([m]);
     opts.innerHTML='';
     shuffle(pick).forEach(function(x){
