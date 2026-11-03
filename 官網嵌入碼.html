@@ -1,6 +1,6 @@
 <!-- 猜猜我是誰：貼到 SHOPLINE 的「自訂 HTML」區塊。網址換成你的 Pages 網址 -->
 <style>
-  /* 整條滿版米白底，和遊戲背景同色，看不出框；框框高度由遊戲自己回報（高度對上就不會出現捲軸，萬一沒對上還能在框裡滑） */
+  /* 整條滿版米白底，和遊戲背景同色，看不出框；框框高度由遊戲自己回報（不出現捲軸；萬一高度沒對上，手機還是能在框裡滑） */
   .nyq-wrap{width:100vw; position:relative; left:50%; margin-left:-50vw; padding-bottom:48px; background:#EFEDE9;}
   .nyq-box{position:relative; width:100%; max-width:1040px; margin:0 auto; aspect-ratio:16/9; min-height:520px; background:#EFEDE9;}
   @media (max-width:767px){
@@ -17,17 +17,20 @@
 </div>
 <script>
 (function(){
-  var box=document.querySelector('.nyq-box'), f=box&&box.querySelector('iframe'); if(!f) return;
+  /* SHOPLINE 可能把這段 HTML 放兩份（電腦版、手機版），所以每一個框都要找，看訊息是哪個框送來的 */
   window.addEventListener('message',function(e){
-    if(e.source!==f.contentWindow||!e.data) return;
-    if(e.data.type==='niyan-guesswho-height'){
-      var h=Math.max(400,Math.min(4000,e.data.h|0));
-      box.style.aspectRatio='auto'; box.style.minHeight='0'; box.style.height=h+'px';
-    }
-    if(e.data.type==='niyan-guesswho-top'){
-      var top=box.getBoundingClientRect().top;
-      if(top<0) window.scrollBy({top:top-80, behavior:'smooth'});
-    }
+    if(!e.data||typeof e.data.type!=='string'||e.data.type.indexOf('niyan-guesswho-')!==0) return;
+    [].forEach.call(document.querySelectorAll('.nyq-box'),function(box){
+      var f=box.querySelector('iframe'); if(!f||e.source!==f.contentWindow) return;
+      if(e.data.type==='niyan-guesswho-height'){
+        var h=Math.max(400,Math.min(4000,e.data.h|0));
+        box.style.aspectRatio='auto'; box.style.minHeight='0'; box.style.height=h+'px';
+      }
+      if(e.data.type==='niyan-guesswho-top'){
+        var top=box.getBoundingClientRect().top;
+        if(top<0) window.scrollBy({top:top-80, behavior:'smooth'});
+      }
+    });
   });
 })();
 </script>

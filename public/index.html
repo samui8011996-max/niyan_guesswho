@@ -18,6 +18,9 @@
   *{box-sizing:border-box;}
   html,body{margin:0; height:100%; overflow-x:hidden; overflow-y:auto; background:var(--nyq-bg); color:var(--nyq-ink); font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;}
   img{-webkit-user-drag:none;}
+  /* 萬一外框高度沒對上：還是能滑，但不顯示捲軸 */
+  html,body{scrollbar-width:none;}
+  html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
   /* 手機：連點按鈕不要觸發雙擊放大 */
   html,body,button,a,label,input{touch-action:manipulation;}
   /* 電腦答題時塞滿外嵌的橫式框框；結算畫面和手機版改成內容多高、框就多高（不出現捲軸） */
